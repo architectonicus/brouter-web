@@ -140,8 +140,16 @@ L.BRouter = L.Class.extend({
         if (exportWaypoints) args.push('exportWaypoints=1');
 
         var prepend_host = format != null;
+        console.log('hack attack----------'+ (prepend_host ? BR.conf.host : '') + '/brouter?' + args.join('&'));
 
-        return (prepend_host ? BR.conf.host : '') + '/brouter?' + args.join('&');
+        return 'fake_route_resp.js';
+
+        //return (prepend_host ? BR.conf.host : '') + '/brouter?' + args.join('&');
+
+       
+
+
+
     },
 
     getRoute(latLngs, cb) {
@@ -151,11 +159,14 @@ L.BRouter = L.Class.extend({
         if (!url) {
             return cb(new Error(i18next.t('warning.cannot-get-route')));
         }
-
+console.log('GETTING ROUTe')
         xhr.open('GET', url, true);
         xhr.onload = L.bind(this._handleRouteResponse, this, xhr, cb);
         xhr.onerror = L.bind(
             function (xhr, cb) {
+
+                console.log('ERROR -------------------')
+                console.log(xhr)
                 cb(BR.Util.getError(xhr));
             },
             this,
@@ -167,13 +178,15 @@ L.BRouter = L.Class.extend({
 
     _handleRouteResponse(xhr, cb) {
         var layer, geojson;
-
+console.log(xhr.getResponseHeader('Content-Type'))
         if (
             xhr.status === 200 &&
-            xhr.responseText &&
+            xhr.responseText 
+            /*&&
             // application error when not GeoJSON format (text/plain for errors)
             (xhr.getResponseHeader('Content-Type').split(';')[0] === 'application/geo+json' ||
                 xhr.getResponseHeader('Content-Type').split(';')[0] === 'application/vnd.geo+json')
+                */
         ) {
             // leaflet.spin
             //gpxLayer.fire('data:loaded');
@@ -189,6 +202,7 @@ L.BRouter = L.Class.extend({
                 return cb(e);
             }
         } else {
+            console.log('mmmmmmmmmm ' + xhr)
             cb(BR.Util.getError(xhr));
         }
     },

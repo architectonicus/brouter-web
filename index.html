@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-        <title data-i18n="title">BRouter web client</title>
+        <title data-i18n="title">Bir uta web client</title>
 
         <!-- inject:css -->
         <link rel="stylesheet" href="dist/brouter-web.css" />
@@ -1500,8 +1500,22 @@
                 >No elevation data available for this route.</span
             >
         </div>
-
+        <div id="trackProfileGraph" >
+            <select data-id="trackProfileGraphLineSelect" >
+                <option value="">Pick line color</option>
+                <option value="surface">surface</option>
+                <option value="gradient">gradient</option>
+                <option value="altitude">altitude</option>
+            </select>
+            <div class="trackProfileGraphSvg" ></div>
+            <select data-id="trackProfileGraphFillSelect" >
+                <option value="">Pick fill color</option>
+                <option value="surface">surface</option>
+                <option value="gradient">gradient</option>
+            </select>
+        </div>
         <footer class="flexrow">
+            
             <div id="stats-info" class="flexgrow">
                 <div>
                     <span class="fa fa-info-circle"></span>
@@ -1632,7 +1646,8 @@
         <script src="dist/layers.js"></script>
         <script src="dist/layersConf.js"></script>
         <script src="dist/turf.min.js"></script>
-
+        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+        
         <!-- "gulp inject" for debugging -->
         <!-- inject:js -->
         <script src="dist/brouter-web.js"></script>
