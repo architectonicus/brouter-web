@@ -1,19 +1,20 @@
-
 class TrackProfileGraph  {
 	
     constructor(data) {
       
         this._data = data;
-        this._fillColorAttribute = 'gradient';
+        this._lineColorAttribute = 'gradient';
+        this._fillColorAttribute = 'surface';
         this.parentContainer = $('#trackProfileGraph');
 
-console.log(this.parentContainer.width());
-console.log(this.parentContainer.innerHeight());
-        this.colorAttrSelection = $(this.parentContainer).find('select[data-id="trackProfileGraphSelect"]');
-        this.colorAttrSelection.val(this._fillColorAttribute);
+        this.lineColorAttrSelection = $(this.parentContainer).find('select[data-id="trackProfileGraphLineSelect"]');
+        this.lineColorAttrSelection.val(this._fillColorAttribute);
+        this.fillColorAttrSelection = $(this.parentContainer).find('select[data-id="trackProfileGraphFillSelect"]');
+        this.fillColorAttrSelection.val(this._fillColorAttribute);
+        
+        
         this.svgContainer = $(this.parentContainer).find('div.trackProfileGraphSvg');    
      
-        
         this._box =  {
             width: 1100,
             height: 235,
@@ -21,15 +22,22 @@ console.log(this.parentContainer.innerHeight());
             marginRight:  30,
             marginBottom: 30,
             marginLeft: 40
-        }  
+        };
 
-        console.log(this.svgContainer.width());
-        console.log(this.svgContainer.innerHeight());
+        this._axes = {};  // DELETE?????
 
         const self = this;
-        this.colorAttrSelection.on('change', function() {
+        this.lineColorAttrSelection.on('change', function() {
+            if( this.value){
+            self._lineColorAttribute = this.value;            
+            self._initUI(self._data);
+            }
+        });
+        this.fillColorAttrSelection.on('change', function() {
+            if( this.value){
             self._fillColorAttribute = this.value;            
             self._initUI(self._data);
+            }
         });
         this._initUI(this._data);
     }
@@ -45,7 +53,9 @@ console.log(this.parentContainer.innerHeight());
         .domain(d3.extent(data, d => d.alt)).nice()
         .range([this._box.height - this._box.marginBottom, this._box.marginTop]);
 
-        const color = d3.scaleSequential(y.domain(), d3.interpolateTurbo);
+        this._axes.x = x;
+        this._axes.y = y;
+        
 
         // Create the path generator.
         const line = d3.line()
@@ -75,6 +85,9 @@ console.log(this.parentContainer.innerHeight());
         //.call(g => g.select(".domain").remove())
         .call(g => g.select(".tick:last-of-type text").append("tspan").text(" m"));
 
+        // the line and fill color functions
+        const lineColor = this.COLOR_FUNCTIONS[this._lineColorAttribute];
+        const fillColor = this.COLOR_FUNCTIONS[this._fillColorAttribute];
 
         //Fill with polys under the line
         const altitudes = data.map( o => o.alt);
@@ -95,16 +108,15 @@ console.log(this.parentContainer.innerHeight());
             .x(d => x(d[0]))
             .y(d => y(d[1]));
 
-            const func = this.COLOR_FUNCTIONS[this._fillColorAttribute];
-
+            
+            const polycolor = fillColor(data[i+1][this._fillColorAttribute]);
             svg.append("path")
             .datum(poly)
-            .attr("fill", 
-                func(data[i+1][this._fillColorAttribute]) ) // use +1 index offset because we need 2 points to calc 
+            .attr("fill", polycolor ) // use +1 index offset because we need 2 points to calc 
                                                             // the gradient, so, the gradient is only available on the next poly
                                                             // we have N points, but N - 1 polys
             
-            .attr("stroke", "none") // creating artifacts; re use color?
+            .attr("stroke", polycolor) // creating artifacts; re use color?
             .attr("stroke-width", 1)
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
@@ -113,7 +125,7 @@ console.log(this.parentContainer.innerHeight());
             //.on('mouseover', (event, d) => console.log(d[0][0],d[1][0]));
         }
 
-        // Append the background line. this separates the colourful altitude profile line
+// Append the background line. this separates the colourful altitude profile line
         // from the polys
      
         svg.append("path")
@@ -126,13 +138,10 @@ console.log(this.parentContainer.innerHeight());
         .attr("transform", `translate(0,-4)`) // so that it floats abot the profile polygons,
         .attr("d", line);
 
-
-
-        // Append the color gradient.
-        var offset = function(d){                          //DEAD
-            console.log(d)
-            return d;
-        }
+        if( this._lineColorAttribute === 'altitude'){
+            console.log("do one");
+            
+        const color = d3.scaleSequential(y.domain(), d3.interpolateTurbo);
         // Linear gradient for colored line
         svg.append("linearGradient")
         .attr("id", "line-gradient")
@@ -146,8 +155,24 @@ console.log(this.parentContainer.innerHeight());
         .join("stop")
         //.attr("offset", offset)
         .attr("offset", d => d)
-
         .attr("stop-color", color.interpolator());
+
+
+        } else {
+            console.log("do other");
+        
+
+svg.append("linearGradient")
+            .attr("id", "line-gradient")
+            .attr("gradientUnits", "userSpaceOnUse")
+            .attr("x1", 0)
+            .attr("x2", this._box.width)
+        .selectAll("stop")
+        .data(data)
+        .join("stop")
+            .attr("offset",  d => x(d.cumulDist) /  this._box.width)
+            .attr("stop-color", d => lineColor(d[this._lineColorAttribute]) );
+        }
 
         // Append the line itself
         svg.append("path")
@@ -168,18 +193,20 @@ console.log(this.parentContainer.innerHeight());
     
     _handleMouseMove(ev){
         // (event) => {console.log(event); return false;}
+        //console.log(ev); 
+        const evx = ev.originalEvent.clientX;// - this._box.marginLeft;
+        const evy = ev.originalEvent.clientY;// - this._box.marginTop;
 
-        const evx = ev.originalEvent.clientX - this._box.marginLeft;
-        const evy = ev.originalEvent.clientY - this._box.marginTop;
+        //console.log(evx,evy); 
 
-        console.log(evx,evy); 
-
-
-        const x = d3.scaleLinear()
+        const x = this._axes.x
+        const y = this._axes.y
+        //console.log(x.invert(evx),y.invert(evy))
+        const xy = d3.scaleLinear()
         .domain(d3.extent(this._data, d => d.cumulDist))
-        .range([this._box.marginLeft, this._box.width - this._box.marginRight]);
-        console.log(x(evx))
+        .range(d3.extent(this._data, d => d.alt));
 
+        //console.log('# ',xy.interpolate(x.invert(evx))); 
     }
 
     update(track, segmentsLayer){
@@ -225,7 +252,7 @@ console.log(this.parentContainer.innerHeight());
             
 
         this._data = track.getLatLngs().map( toObjOrNull );
-console.log(this._data)
+        
         this._initUI(this._data);
     }
 
@@ -236,13 +263,12 @@ console.log(this._data)
     }
 
     _surfaceToColor(surf){
-        console.log(surf)
         return TrackProfileGraph._SURF_TO_COLOR[surf];
     }
 
     _gradToColor(grad){
         let c;
-        if( grad < -15 ){
+        if( grad <= -15 ){
             c = 'green'
         } else if( grad > -15 && grad <= -5 ){
             c = 'lime'
@@ -254,7 +280,7 @@ console.log(this._data)
             c = 'gold'
         } else if( grad > 5 && grad <= 15 ){
             c = 'darkorange';
-        } else {  // grad > 15 && grad <= 15 ){
+        } else {  // grad > 15  ){
            c = 'red';   
         }
 

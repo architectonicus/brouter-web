@@ -88,6 +88,7 @@ BR.TrackAnalysis = L.Class.extend({
         if (!this.active) {
             return;
         }
+        
 
         if (segments.length === 0) {
             $('#track_statistics').html('');
@@ -104,7 +105,7 @@ BR.TrackAnalysis = L.Class.extend({
 
         this.trackPolyline = polyline;
         this.trackEdges = new BR.TrackEdges(segments);
-
+        
         const analysis = this.calcStats(polyline, segments);
 
         this.render(analysis);
@@ -390,6 +391,7 @@ BR.TrackAnalysis = L.Class.extend({
      */
     renderTable(type, data) {
         let index;
+        const $wrapper = $('<div class="analysisTableWrapper" />');
         const $table = $(`<table data-type="${type}" class="mini stripe dataTable track-analysis-table"></table>`);
         const $thead = $('<thead></thead>');
         $thead.append(
@@ -398,13 +400,15 @@ BR.TrackAnalysis = L.Class.extend({
                     `<th class="track-analysis-header-category">${i18next.t('sidebar.analysis.table.category')}</th>`
                 )
                 .append(
-                    $(`<th class="track-analysis-header-distance">${i18next.t('sidebar.analysis.table.length')}</th>`)
+                    $(`<th class="track-analysis-header-distance">${i18next.t('sidebar.analysis.table.length')} km</th>`)
                 )
         );
         $table.append($thead);
         const $tbody = $('<tbody></tbody>');
 
         let totalDistance = 0.0;
+        const stats = {};
+        stats.partDists = [];
 
         for (index in data) {
             if (!data.hasOwnProperty(index)) {
@@ -417,6 +421,7 @@ BR.TrackAnalysis = L.Class.extend({
             $row.append(`<td class="track-analysis-distance">${this.formatDistance(data[index].distance)} km</td>`);
             $tbody.append($row);
             totalDistance += data[index].distance;
+            stats.partDists.push( { name: data[index].formatted_name, value: data[index].distance } );
         }
 
         if (totalDistance < this.totalRouteDistance) {
@@ -433,6 +438,8 @@ BR.TrackAnalysis = L.Class.extend({
             );
         }
 
+       
+
         $table.append($tbody);
 
         $table.append(
@@ -445,11 +452,210 @@ BR.TrackAnalysis = L.Class.extend({
                             totalDistance
                         )} km</td>`
                     )
+
                 )
         );
+        //$table.append($('</table>'));
 
-        return $table;
+        $wrapper.append($table);
+
+        // graph stuff
+        stats.totalDistance = totalDistance;
+        stats.partDists.map( obj => {
+            obj.percent = 100*obj.value/stats.totalDistance;
+            return obj;
+        });
+        stats.name = type;     
+        $wrapper.append(this.createGraph('bar', type, stats));
+
+        return $wrapper;
     },
+
+    // playing aroung with graph types: may only be pie or bar (=anything other than pie)
+    createGraph(graphType, dataName, stats){
+        let svgContainer = $( `<div data-type="${dataName}" ></div>` );
+        graphType === 'pie' ? this.createPie(dataName,stats,svgContainer) : this.createBarChart(dataName,stats,svgContainer);
+
+        return svgContainer;
+    },
+
+    createBarChart(dataName,stats,element){
+        let data = stats.partDists;
+        const width = 928;
+        const height = 500;
+        const marginTop = 30;
+        const marginRight = 0;
+        const marginBottom = 30;
+        const marginLeft = 30;
+      
+        // Declare the x (horizontal position) scale.
+        const x = d3.scaleBand()
+            .domain(d3.groupSort(data, ([d]) => -d.value, (d) => d.name)) // descending frequency
+            //.domain([0,100])
+            .range([marginLeft, width - marginRight])
+            .padding(0.1);
+        // Declare the y (vertical position) scale.
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, (d) => d.percent)])
+            .range([height - marginBottom, marginTop]);
+      
+        // Create the SVG container.
+        const svg = d3.create("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("viewBox", [-30, 0, width, height])
+            .attr("style", "max-width: 100%; height: auto;");
+      
+        const colorFunc = this.toColorFunc(dataName);
+        // Add a rect for each bar.
+        svg.append("g")
+            //.attr("fill", "steelblue")
+          .selectAll()
+          .data(data)
+          .join("rect")
+            .attr("x", (d) => x(d.name))
+            .attr("fill", (d) => colorFunc(d.name))
+            .attr("y", (d) => y(d.percent))
+            .attr("height", (d) => y(0) - y(d.percent))
+            .attr("width", x.bandwidth());
+      
+        // Add the x-axis and label.
+        svg.append("g")
+            .attr("transform", `translate(0,${height - marginBottom})`)
+            .style("font-size","30px")
+            .call(d3.axisBottom(x).tickSizeOuter(0));
+      
+        // Add the y-axis and label, and remove the domain line.
+        svg.append("g")
+            .attr("transform", `translate(${marginLeft},0)`)
+            .call(d3.axisLeft(y).tickFormat((y) => (y * 1).toFixed()))
+            .style("font-size","30px")
+            .call(g => g.select(".domain").remove())
+            .call(g => g.append("text")
+                .attr("x", -18)
+                .attr("y", 22)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "start")
+                
+                .text("%")
+                .attr("style", "max-width: 100%; height: auto; font: 24px sans-serif;"));
+      
+        element.append(svg.node());
+    },
+
+    //TODO unify colors
+    toColorFunc(dataType){
+
+        if(dataType === 'highway'){
+
+            const _HIGHWAY_TO_COLOR = {
+                'Track grade1': 'black',
+                'Residential': 'brown',
+                'Unclassified': 'grey',
+                'Track grade2': 'tan',
+                'Path': 'RosyBrown'
+            }
+        
+             return function(value){
+                let v = _HIGHWAY_TO_COLOR[value];
+                v = (v) ? v : 'red';
+                return v
+            }
+
+        } else if(dataType === 'surface'){
+
+            const _SURF_TO_COLOR = {
+                Ground: 'black',
+                Compacted: 'brown',
+                Asphalt: 'grey',
+                Wood: 'Maroon'
+
+            };
+        
+             return function(value){
+                let v = _SURF_TO_COLOR[value];
+                v = (v) ? v : 'red';
+                return v
+                return _SURF_TO_COLOR[value];
+            }
+
+        } else {
+            return function(value){
+
+                return 'LightSteelBlue';
+            }
+        }
+
+    },
+
+    createPie(dataName,stats,element){
+
+        let data = stats.partDists;
+    const width = 928;
+    const height = Math.min(width, 500);
+  
+    // Create the color scale.
+    const color = d3.scaleOrdinal()
+        .domain(data.map(d => d.name))
+        .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), data.length).reverse())
+  
+    // Create the pie layout and arc generator.
+    const pie = d3.pie()
+        .sort(null)
+        .value(d => d.value);
+  
+    const arc = d3.arc()
+        .innerRadius(0)
+        .outerRadius(Math.min(width, height) / 2 - 1);
+  
+    const labelRadius = arc.outerRadius()() * 0.8;
+  
+    // A separate arc generator for labels.
+    const arcLabel = d3.arc()
+        .innerRadius(labelRadius)
+        .outerRadius(labelRadius);
+  
+    const arcs = pie(data);
+  
+    // Create the SVG container.
+    const svg = d3.create("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [-width / 2, -height / 2, width, height])
+        .attr("style", "max-width: 100%; height: auto; font: 24px sans-serif;");
+  
+    // Add a sector path for each value.
+    svg.append("g")
+        .attr("stroke", "white")
+      .selectAll()
+      .data(arcs)
+      .join("path")
+        .attr("fill", d => color(d.data.name))
+        .attr("d", arc)
+      .append("title")
+        .text(d => `${d.data.name}: ${(100*d.data.percent).toFixed(2).toLocaleString("en-US")}%`);
+  
+    // Create a new arc generator to place a label close to the edge.
+    // The label shows the value if there is enough room.
+    svg.append("g")
+        .attr("text-anchor", "middle")
+      .selectAll()
+      .data(arcs)
+      .join("text")
+        .attr("transform", d => `translate(${arcLabel.centroid(d)})`)
+        .call(text => text.append("tspan")
+            .attr("y", "-0.4em")
+            .attr("font-weight", "bold")
+            .text(d => d.data.name))
+        .call(text => text.filter(d => (d.endAngle - d.startAngle) > 0.25).append("tspan")
+            .attr("x", 0)
+            .attr("y", "0.7em")
+            .attr("fill-opacity", 0.7)
+            .text(d => `${(100*d.data.percent).toFixed(2).toLocaleString("en-US")}%`));
+  
+        element.append(svg.node());
+    },
+
 
     /**
      * Format a distance with two decimal places.
