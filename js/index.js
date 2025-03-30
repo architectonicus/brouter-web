@@ -44,6 +44,11 @@
             windowPadding: [0, 0, 40, 0],
         });
 
+        //[UT] bug not refreshing map osm layer when loaded -> grey are at bottom
+        $(function() {//on ready
+            map.invalidateSize();
+        });
+
         search = new BR.Search();
         map.addControl(search);
         $('#map .leaflet-control-geocoder > button')[0].title = i18next.t('keyboard.generic-shortcut', {
@@ -276,6 +281,11 @@
         
         ];
         const trackProfileGraph = new TrackProfileGraph(_data);
+        $('#trackProfileToggle').on('click', ev => {
+            trackProfileGraph.toggle();
+
+        });
+        
 
         profile = new BR.Profile();
         profile.on('update', function (evt) {

@@ -6,7 +6,7 @@ class TrackProfileGraph  {
         this._lineColorAttribute = 'gradient';
         this._fillColorAttribute = 'surface';
         this.parentContainer = $('#trackProfileGraph');
-
+        this.toggle();
         this.lineColorAttrSelection = $(this.parentContainer).find('select[data-id="trackProfileGraphLineSelect"]');
         this.lineColorAttrSelection.val(this._lineColorAttribute);
         this.fillColorAttrSelection = $(this.parentContainer).find('select[data-id="trackProfileGraphFillSelect"]');
@@ -47,44 +47,49 @@ class TrackProfileGraph  {
         
         // Create the scales.
         const x = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.cumulDist))
-        .range([this._box.marginLeft, this._box.width - this._box.marginRight]);
+            .domain(d3.extent(data, d => d.cumulDist))
+            .range([this._box.marginLeft, this._box.width - this._box.marginRight]);
 
         const y = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.alt)).nice()
-        .range([this._box.height - this._box.marginBottom, this._box.marginTop]);
+            .domain(d3.extent(data, d => d.alt)).nice()
+            .range([this._box.height - this._box.marginBottom, this._box.marginTop]);
 
-        this._axes.x = x;
-        this._axes.y = y;
+        const cumulAltScale = d3.scaleLinear()
+            .domain(d3.extent(data, d => d.cumulAlt)).nice()
+            .range([this._box.height - this._box.marginBottom, this._box.marginTop]);
+
+        this._axes['cumulativeDistance'] = x;
+        this._axes['altitude'] = y;
+        this._axes['cumulativeAltitude'] = cumulAltScale;
         
 
         // Create the path generator.
         const line = d3.line()
-        //.defined(d => !isNaN(d.alt))
-        .x(d => x(d.cumulDist))
-        .y(d => y(d.alt));
+            //.defined(d => !isNaN(d.alt))
+            .x(d => x(d.cumulDist))
+            .y(d => y(d.alt));
 
         // Create the SVG container.
         const svg = d3.create("svg")
-        .attr("width", this._box.width)
-        .attr("height", this._box.height)
-        .attr("viewBox", [0, 0, this._box.width, this._box.height])
-        .attr("style", "max-width: 100%; height: auto;");
+            //.attr("width", this.parentContainer.width())
+            //.attr("height", this._box.height)
+            .attr("viewBox", [0, 0, this._box.width, this._box.height])
+            .attr("style", "max-width: 100%; height: auto;");
 
         // Axes
         // X -> distance
         svg.append("g")
-        .attr("transform", `translate(0,${this._box.height - this._box.marginBottom})`)
-        .call(d3.axisBottom(x).ticks(this._box.width / 100).tickSizeOuter(0))
-        .call(g => g.select(".tick:last-of-type text").append("tspan").text(" km"));
-        //.call(g => g.select(".domain").remove());
+            .attr("transform", `translate(0,${this._box.height - this._box.marginBottom})`)
+            .call(d3.axisBottom(x).ticks(this._box.width / 100).tickSizeOuter(0))
+            .call(g => g.select(".tick:last-of-type text").append("tspan").text(" km"));
+            //.call(g => g.select(".domain").remove());
 
         // Y -> Altitude
         svg.append("g")
-        .attr("transform", `translate(${this._box.marginLeft},0)`)
-        .call(d3.axisLeft(y).ticks(this._box.height / 50))
-        //.call(g => g.select(".domain").remove())
-        .call(g => g.select(".tick:last-of-type text").append("tspan").text(" m"));
+            .attr("transform", `translate(${this._box.marginLeft},0)`)
+            .call(d3.axisLeft(y).ticks(this._box.height / 50))
+            //.call(g => g.select(".domain").remove())
+            .call(g => g.select(".tick:last-of-type text").append("tspan").text(" m"));
 
         // the line and fill color functions
         const lineColor = this.COLOR_FUNCTIONS[this._lineColorAttribute];
@@ -104,60 +109,66 @@ class TrackProfileGraph  {
            
             // poly is a local line
             const localLine = d3.line()
-            //.curve(d3.curveStep)
-            //.defined(d => true)
-            .x(d => x(d[0]))
-            .y(d => y(d[1]));
+                //.curve(d3.curveStep)
+                //.defined(d => true)
+                .x(d => x(d[0]))
+                .y(d => y(d[1]));
 
             
             const polycolor = fillColor(data[i][this._fillColorAttribute]);
             var thing = svg.append("path")
-            .datum(poly)
-            .attr("fill", polycolor ) // use +1 index offset because we need 2 points to calc 
-                                                            // the gradient, so, the gradient is only available on the next poly
-                                                            // we have N points, but N - 1 polys
-            
-            .attr("stroke", polycolor) // creating artifacts; re use color?
-            .attr("stroke-width", 1)
-            .attr("stroke-linejoin", "round")
-            .attr("stroke-linecap", "round")
-            .attr("data-segment-ix", i-1)
-            .attr("d", localLine);
-            //.on('mouseover', (event, d) => console.log(event));
-            //.on('mouseover', (event, d) => console.log(d[0][0],d[1][0]));
+                .datum(poly)
+                .attr("fill", polycolor ) // use +1 index offset because we need 2 points to calc 
+                                                                // the gradient, so, the gradient is only available on the next poly
+                                                                // we have N points, but N - 1 polys
+                
+                .attr("stroke", polycolor) // creating artifacts; re use color?
+                .attr("stroke-width", 1)
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-linecap", "round")
+                .attr("data-segment-ix", i-1)
+                .attr("d", localLine);
+                //.on('mouseover', (event, d) => console.log(event));
+                //.on('mouseover', (event, d) => console.log(d[0][0],d[1][0]));
         }
 
 // Append the background line. this separates the colourful altitude profile line
         // from the polys
      
         svg.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "white")
-        .attr("stroke-width", 8)
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "round")
-        .attr("transform", `translate(0,-4)`) // so that it floats abot the profile polygons,
-        .attr("d", line);
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "white")
+            .attr("stroke-width", 8)
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("transform", `translate(0,-4)`) // so that it floats abot the profile polygons,
+            .attr("d", line);
 
-        if( this._lineColorAttribute === 'cumulativeAltitude'){//TO DO: cumulativeAltitude
+        if( this._lineColorAttribute === 'altitude'
+            || this._lineColorAttribute === 'cumulativeAltitude'){
 
-            console.log("do cumulativeAltitude");
-            
-        let color = d3.scaleSequential(y.domain(),
-        //d3.scaleSequential(y.domain(),d3.interpolateRgbBasis(["#9e0142", "#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#white", "#e6f598", "#abdda4", "#66c2a5", "#3288bd", "#000000"]) ));
-        d3.interpolateSpectral);
-        //d3.interpolateTurbo);
+            const cumulAltScale = d3.scaleLinear()
+                .domain(d3.extent(data, d => d.cumulAlt)).nice()
+                .range([this._box.height - this._box.marginBottom, this._box.marginTop]);
 
-        /*
-        d3.scaleLinear()
-        .domain([0, 0.5, 1])
-        .range(["red", "green", "blue"])
-        .interpolate(d3.interpolateRgb.gamma(2.2))
-      (0.5)*/
-      /* elevation colors
-        color = d3.scaleSequential(y.domain(), d3.interpolateRgbBasis(["#3cab24","#21830d","#4db238","#b0c667","#c0d99a","#e9e491","#e5d38c","#dea855","#de9824","#cd580d","#ad3c18"]));
-         */
+        let color;
+        
+        const domain = this._axes[this._lineColorAttribute];
+        if(this._lineColorAttribute === 'altitude'){
+            color = d3.scaleSequential(y.domain(), 
+            d3.interpolateTurbo);
+            // d3.interpolateSpectral);
+
+        } else if(this._lineColorAttribute === 'cumulativeAltitude'){
+            color = d3.scaleSequential(cumulAltScale.domain(),d3.interpolateRgbBasis(
+                ["#cb181d", "#fb6a4a", "#fcae91","#fee5d9", "black", "#eff3ff","#bdd7e7","#6baed6","#2171b5", "green"]) );
+                    //["#9e0142", "#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#white", "#e6f598", "#abdda4", "#66c2a5", "#3288bd", "#000000"]) );
+        
+        } else {
+            throw 'Error. Unhandled: ' + this._lineColorAttribute;
+        }
+
         // Linear gradient for colored line
         svg.append("linearGradient")
         .attr("id", "line-gradient")
@@ -174,34 +185,34 @@ class TrackProfileGraph  {
         .attr("stop-color", color.interpolator());
 
 
-        } else {
+        } else {   // Discrete color tables
             console.log("do other");
         
 
-svg.append("linearGradient")
-            .attr("id", "line-gradient")
-            .attr("gradientUnits", "userSpaceOnUse")
-            .attr("x1", 0)
-            .attr("x2", this._box.width)
-        .selectAll("stop")
-        .data(data)
-        .join("stop")
-            .attr("offset",  d => x(d.cumulDist) /  this._box.width)
-            .attr("stop-color", d => lineColor(d[this._lineColorAttribute]) );
-        }
+            svg.append("linearGradient")
+                .attr("id", "line-gradient")
+                .attr("gradientUnits", "userSpaceOnUse")
+                .attr("x1", 0)
+                .attr("x2", this._box.width)
+                .selectAll("stop")
+                .data(data)
+                .join("stop")
+                    .attr("offset",  d => x(d.cumulDist) /  this._box.width)
+                    .attr("stop-color", d => lineColor(d[this._lineColorAttribute]) );
+                }
 
         // Append the line itself
         svg.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "url(#line-gradient)")
-        .attr("stroke-width", 4)
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "square")
-        .attr("transform", `translate(0,-6)`) // so that it floats abot the profile polygons,
-        .attr("d", line);                     // giving it some white space in between
-        
-        this.svgContainer.on('mousemove', this._handleMouseMove.bind(this));
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "url(#line-gradient)")
+            .attr("stroke-width", 4)
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "square")
+            .attr("transform", `translate(0,-6)`) // so that it floats abot the profile polygons,
+            .attr("d", line);                     // giving it some white space in between
+            
+        this.svgContainer.on('mousemove touchmove', this._handleMouseMove.bind(this));
        
         this.svgContainer.empty();
         this.svgContainer.append(svg.node());
@@ -211,22 +222,23 @@ svg.append("linearGradient")
         // (event) => {console.log(event); return false;}
         //console.log(ev); 
 
-        
+        console.log('dor ' , ev.originalEvent.clientX);
         const segmentix = ev.target.getAttribute('data-segment-ix');
         if( segmentix ) {
             const ix = parseInt(segmentix, 10);
 
-            const evx = ev.originalEvent.clientX;// - this._box.marginLeft;
+            const evx = ev.originalEvent.clientX - this._box.marginLeft + this._box.marginRight;
             const evy = ev.originalEvent.clientY;// - this._box.marginTop;
 
-            const x = this._axes.x
-            const y = this._axes.y
+            const x = this._axes['cumulativeDistance'];
+            const y = this._axes['altitude'];
             const distanceFromStart = x.invert(evx);
             const completeDist = this._data[this._data.length-1].cumulDist;
             //TODO FIXME should use seg length, not total distance
-            const alt = d3.interpolateNumber(this._data[ix].alt, this._data[ix+1].alt)(distanceFromStart/completeDist);
+            //const alt = d3.interpolateNumber(this._data[ix].alt, this._data[ix+1].alt)(distanceFromStart/completeDist);
+            const alt = (this._data[ix].alt, this._data[ix+1].alt)/(this._data[ix].cumulDist, this._data[ix+1].cumulDist)/2;
 
-            console.log('distance: ',distanceFromStart,completeDist)
+            console.log('distance: ',distanceFromStart,completeDist, 'px x', evx)
             console.log('alt: ',y(alt), ' / ', (distanceFromStart/completeDist))
 
     
@@ -238,7 +250,7 @@ svg.append("linearGradient")
 
     _updateCursor(x,y){
         this.svgContainer.find('circle[data-cursor]').detach();
-        d3.select(this._svgElementName + ' svg').append('circle')
+        d3.select(this._svgElementName).select('svg').append('circle')
             .attr('data-cursor', true)
             .attr("transform", `translate(0,-10})`)
             .attr('cx', x)
@@ -246,6 +258,10 @@ svg.append("linearGradient")
             .attr('r', 6)
             .attr('stroke', 'black')
             .attr('fill', 'white');
+    }
+
+    toggle(){
+        this.parentContainer.toggle();
     }
 
     update(track, segmentsLayer){

@@ -13,7 +13,7 @@
     </head>
 
     <body class="flexcolumn">
-        <nav class="navbar navbar-expand-md navbar-dark ">
+        <nav class="navbar navbar-expand-md navbar-biruta ">
             <button
                 class="navbar-toggler"
                 type="button"
@@ -1496,18 +1496,13 @@
                 </div>
             </div>
         </div>
-
-        <div class="collapse" id="elevation-chart">
-            <span id="no-elevation-data" data-i18n="footer.no-elevation-data" style="display: none"
-                >No elevation data available for this route.</span
-            >
-        </div>
         <div id="trackProfileGraph" >
             <select data-id="trackProfileGraphLineSelect" >
                 <option value="">Pick line color</option>
                 <option value="surface">surface</option>
                 <option value="gradient">gradient</option>
                 <option value="altitude">altitude</option>
+                <option value="cumulativeAltitude">cumulativeAltitude</option>
             </select>
             <div class="trackProfileGraphSvg" ></div>
             <select data-id="trackProfileGraphFillSelect" >
@@ -1516,6 +1511,15 @@
                 <option value="gradient">gradient</option>
             </select>
         </div>
+        <div class="collapse" id="elevation-chart" style="display: none;">
+            
+            <span id="no-elevation-data" data-i18n="footer.no-elevation-data" style="display: none"
+                >No elevation data available for this route.</span
+            >
+        </div>
+        
+<!-- was here the profile graph -->
+
         <footer class="flexrow">
             
             <div id="stats-info" class="flexgrow">
@@ -1618,7 +1622,7 @@
                 data-toggle="collapse"
                 data-target="#elevation-chart"
                 aria-controls="elevation-chart"
-                id="elevation-btn"
+                id="trackProfileToggle"
                 aria-expanded="false"
                 aria-label="Toggle elevation chart"
                 data-i18n="[title]keyboard.generic-shortcut"
