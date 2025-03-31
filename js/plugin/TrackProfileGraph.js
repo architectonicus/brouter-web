@@ -6,7 +6,6 @@ class TrackProfileGraph  {
         this._lineColorAttribute = 'gradient';
         this._fillColorAttribute = 'surface';
         this.parentContainer = $('#trackProfileGraph');
-        this.toggle();
         this.lineColorAttrSelection = $(this.parentContainer).find('select[data-id="trackProfileGraphLineSelect"]');
         this.lineColorAttrSelection.val(this._lineColorAttribute);
         this.fillColorAttrSelection = $(this.parentContainer).find('select[data-id="trackProfileGraphFillSelect"]');
@@ -91,9 +90,10 @@ class TrackProfileGraph  {
             //.call(g => g.select(".domain").remove())
             .call(g => g.select(".tick:last-of-type text").append("tspan").text(" m"));
 
+            console.log(this._lineColorAttribute,this._fillColorAttribute)
         // the line and fill color functions
-        const lineColor = this.COLOR_FUNCTIONS[this._lineColorAttribute];
-        const fillColor = this.COLOR_FUNCTIONS[this._fillColorAttribute];
+        const lineColor = TrackProfileGraph.COLOR_FUNCTIONS[this._lineColorAttribute];
+        const fillColor = TrackProfileGraph.COLOR_FUNCTIONS[this._fillColorAttribute];
 
         //Fill with polys under the line
         const altitudes = data.map( o => o.alt);
@@ -186,8 +186,6 @@ class TrackProfileGraph  {
 
 
         } else {   // Discrete color tables
-            console.log("do other");
-        
 
             svg.append("linearGradient")
                 .attr("id", "line-gradient")
@@ -227,12 +225,13 @@ class TrackProfileGraph  {
         if( segmentix ) {
             const ix = parseInt(segmentix, 10);
 
-            const evx = ev.originalEvent.clientX - this._box.marginLeft + this._box.marginRight;
+            const evx = ev.originalEvent.clientX + this._box.marginLeft;
             const evy = ev.originalEvent.clientY;// - this._box.marginTop;
 
             const x = this._axes['cumulativeDistance'];
+            console.log(x)
             const y = this._axes['altitude'];
-            const distanceFromStart = x.invert(evx);
+            const distanceFromStart = x(evx);
             const completeDist = this._data[this._data.length-1].cumulDist;
             //TODO FIXME should use seg length, not total distance
             //const alt = d3.interpolateNumber(this._data[ix].alt, this._data[ix+1].alt)(distanceFromStart/completeDist);
@@ -242,17 +241,17 @@ class TrackProfileGraph  {
             console.log('alt: ',y(alt), ' / ', (distanceFromStart/completeDist))
 
     
-            this._updateCursor(evx,y(alt));
+            this._updateCursor(evx + this._box.marginLeft - this._box.marginRight, this._box.height - this._box.marginTop );
         }
 
         
     }
 
     _updateCursor(x,y){
-        this.svgContainer.find('circle[data-cursor]').detach();
+       // this.svgContainer.find('circle[data-cursor]').detach();
         d3.select(this._svgElementName).select('svg').append('circle')
             .attr('data-cursor', true)
-            .attr("transform", `translate(0,-10})`)
+            //.attr("transform", `translate(0,-10})`)
             .attr('cx', x)
             .attr('cy', y)
             .attr('r', 6)
@@ -315,17 +314,17 @@ class TrackProfileGraph  {
         this._initUI(this._data);
     }
 
-     static _SURF_TO_COLOR = {
+    static _SURF_TO_COLOR = {
         ground: 'black',
         compacted: 'brown',
         asphalt: 'grey'
     }
 
-    _surfaceToColor(surf){
+    static _surfaceToColor(surf){
         return TrackProfileGraph._SURF_TO_COLOR[surf];
     }
 
-    _gradToColor(grad){
+    static _gradToColor(grad){
         let c;
         if( grad <= -15 ){
             c = 'green'
@@ -346,9 +345,9 @@ class TrackProfileGraph  {
         return c;
     }
 
-    COLOR_FUNCTIONS = {
-        surface: this._surfaceToColor,
-        gradient: this._gradToColor        
+    static COLOR_FUNCTIONS = {
+        surface: TrackProfileGraph._surfaceToColor,
+        gradient: TrackProfileGraph._gradToColor        
     }
 
   }

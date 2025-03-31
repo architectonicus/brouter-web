@@ -267,17 +267,17 @@
 
         elevation = new BR.Heightgraph();
         const _data =  [
-            {cumulDist: 0, alt: 1.7, gradient: 0,surface: "asphalt"},
-            {cumulDist: 0.5, alt: 12.5, gradient: 0.24,surface: "asphalt"},
+            {cumulDist: 0, alt: 26.7, gradient: 0,surface: "asphalt"},
+            {cumulDist: 0.65, alt: 12.5, gradient: 0.24,surface: "asphalt"},
             {cumulDist: 1.5, alt: 25, gradient: 0.26,surface: "wood"},
             {cumulDist: 2.7, alt: 12.7, gradient: 4.8,surface: "compacted"},
-            {cumulDist: 3.5, alt: 25, gradient: 5.1,surface: "compacted"},
+            {cumulDist: 3.5, alt: 4.5, gradient: 5.1,surface: "compacted"},
             {cumulDist: 4.7, alt: 17, gradient: 14,surface: "wood"},
             {cumulDist: 5.1, alt: 28, gradient: 16,surface: "wood"},
             {cumulDist: 7.2, alt: 12, gradient: -16,surface: "wood"},
             {cumulDist: 8.2, alt: 12, gradient: -14,surface: "asphalt"},
             {cumulDist: 10.2, alt: 12, gradient: -0.2640,surface: "asphalt"},
-            {cumulDist: 12., alt: 12, gradient: -120.26,surface: "asphalt"}
+            {cumulDist: 12.2, alt: 12, gradient: -120.26,surface: "asphalt"}
         
         ];
         const trackProfileGraph = new TrackProfileGraph(_data);
@@ -286,6 +286,8 @@
 
         });
         
+        const routeStats = new RouteStats($('#routeStats'));
+        console.log(routeStats)
 
         profile = new BR.Profile();
         profile.on('update', function (evt) {
