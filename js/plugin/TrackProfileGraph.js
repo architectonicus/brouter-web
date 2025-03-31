@@ -24,7 +24,7 @@ class TrackProfileGraph  {
             marginLeft: 40
         };
 
-        this._axes = {};  // DELETE?????
+        this._axes = {}; 
 
         const self = this;
         this.lineColorAttrSelection.on('change', function() {

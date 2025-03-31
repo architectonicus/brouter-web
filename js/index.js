@@ -386,7 +386,8 @@
 
             //TTTTTTT
             trackProfileGraph.update(track, segmentsLayer);
-            
+            routeStats.update(track, segments);
+
             routingPathQuality.update(track, segmentsLayer);
             if (BR.conf.transit) {
                 itinerary.update(track, segments);

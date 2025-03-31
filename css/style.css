@@ -1297,21 +1297,67 @@ table.dataTable.display tbody tr:hover.selected {
     }
 }
 
+#routeStats {
+    max-width: 200px;
+    width: 185px;
+    position: fixed;
+    bottom: 45px;
+    left: 10px;
+    z-index: 2;
+    cursor: pointer;
+}
+
+#routeStats .stats-container {
+    /*display: grid;*/
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+    background-color: white;
+
+}
+
+.stats-container .field {
+    display: inline-block;
+    font-family: sans-serif;
+    font-size: 16px;
+}
+
+.stats-container .fieldK {
+    max-width: 24px;
+    min-width: 24px;
+    display: inline-block;
+    text-align: center;
+}
+
+
+#routeStats .viz-toggle {
+    transform: scale(-1, 1);
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    background-color: white;
+    border-radius: 8px;
+    margin-top: 4px;
+
+}
+
+
 #trackProfileGraph {
     position: relative;
+    _top: 56vh;
     bottom: 0;
     left: 0;
     z-index: 1;
     background-color: white;
-    margin-bottom: 32px;
+    _margin-bottom: 32px;
 }
 
 #trackProfileGraph div.trackProfileGraphSvg {
     width: 90vw;
-    height: 15vh;
+    _height: 15vh;
     border-right: #0074d9 solid 12px;
-
-    _border: 1px solid red;
     z-index: 1;
     background-color: white;
 }
@@ -1325,26 +1371,18 @@ table.dataTable.display tbody tr:hover.selected {
     right: 0;
 }
 
-#routeStats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    max-width: 200px;
+
+#trackProfileToggle {
+    position: fixed;
+    bottom: 45px;
+    right: 10px;
+    z-index: 2;
+    cursor: pointer;
+    background-color: white;
 }
 
-#routeStats .field {
-    display: inline-block;
-    font-family: sans-serif;
-    font-size: 12px;
-}
-
-#routeStats .fieldK {
-    max-width: 24px;
-    min-width: 24px;
-    display: inline-block;
-    text-align: center;
-}
 
 /*[UT] hide some UIs on init*/
-.initiallyHidden {
+.initially-hidden {
     display: none;
 }
