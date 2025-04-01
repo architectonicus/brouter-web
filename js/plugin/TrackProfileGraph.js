@@ -210,9 +210,10 @@ class TrackProfileGraph  {
             .attr("transform", `translate(0,-6)`) // so that it floats abot the profile polygons,
             .attr("d", line);                     // giving it some white space in between
             
-        this.svgContainer.on('mousemove touchmove', this._handleMouseMove.bind(this));
-       
+        
         this.svgContainer.empty();
+        svg.on('mousemove touchmove', this._handleMouseMove.bind(this));
+       
         this.svgContainer.append(svg.node());
     }
     
@@ -220,28 +221,48 @@ class TrackProfileGraph  {
         // (event) => {console.log(event); return false;}
         //console.log(ev); 
 
-        console.log('dor ' , ev.originalEvent.clientX);
+
+        // var bisect = d3.bisector(function(d) { return d.x; }).left;
+
+        const coords = d3.pointer(ev );
+        console.log('coords ' ,  coords[1]);
+
+        
+        //var bisect = d3.bisector(function(d) { return d.alt; }).left;
+        //var i = bisect(this._data, x0, 1);
+        //console.log('I? ' ,i);
+
         const segmentix = ev.target.getAttribute('data-segment-ix');
         if( segmentix ) {
             const ix = parseInt(segmentix, 10);
+            //console.log('segmentix ' , segmentix);
+            var distanceFromStart = this._axes['cumulativeDistance'].invert(coords[0]);
+            var a = this._axes['altitude'].invert(coords[1]);
+            
+            console.log('A: ', a)
 
-            const evx = ev.originalEvent.clientX + this._box.marginLeft;
-            const evy = ev.originalEvent.clientY;// - this._box.marginTop;
-
-            const x = this._axes['cumulativeDistance'];
-            console.log(x)
+            //console.log(x)
             const y = this._axes['altitude'];
-            const distanceFromStart = x(evx);
+            //const distanceFromStart = x(evx);
             const completeDist = this._data[this._data.length-1].cumulDist;
+
+            //console.log('dist ', this._data[ix+1].cumulDist , this._data[ix].cumulDist);
+            //console.log('alts ', this._data[ix+1].alt , this._data[ix].alt);
+
             //TODO FIXME should use seg length, not total distance
             //const alt = d3.interpolateNumber(this._data[ix].alt, this._data[ix+1].alt)(distanceFromStart/completeDist);
-            const alt = (this._data[ix].alt, this._data[ix+1].alt)/(this._data[ix].cumulDist, this._data[ix+1].cumulDist)/2;
+            const alt = (distanceFromStart-this._data[ix].cumulDist) * 
+                        (this._data[ix+1].alt - this._data[ix].alt) / (this._data[ix+1].cumulDist - this._data[ix].cumulDist)
+                        + this._data[ix].alt;
 
-            console.log('distance: ',distanceFromStart,completeDist, 'px x', evx)
-            console.log('alt: ',y(alt), ' / ', (distanceFromStart/completeDist))
+            console.log('distanceFromStart ', distanceFromStart,this._data[ix].cumulDist)
+            //console.log('distance: ',distanceFromStart,completeDist, 'px x', evx)
 
-    
-            this._updateCursor(evx + this._box.marginLeft - this._box.marginRight, this._box.height - this._box.marginTop );
+            const pxy = y(coords[1]-this._box.height) - this._box.height;
+            
+            console.log('x ', distanceFromStart, ' alt ', alt, ' inv ', y.invert(alt), ' px alt', pxy );
+
+            this._updateCursor(coords[0], pxy );
         }
 
         
