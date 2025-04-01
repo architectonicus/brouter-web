@@ -46,7 +46,7 @@ class TrackProfileGraph  {
         
         // Create the scales.
         const x = d3.scaleLinear()
-            .domain(d3.extent(data, d => d.cumulDist))
+            .domain(d3.extent(data, d => d.cumulDist)).nice()
             .range([this._box.marginLeft, this._box.width - this._box.marginRight]);
 
         const y = d3.scaleLinear()
@@ -220,7 +220,6 @@ class TrackProfileGraph  {
     _handleMouseMove(ev){
         
         const coords = d3.pointer(ev);
-
         const segmentix = ev.target.getAttribute('data-segment-ix');
         if( segmentix ) {
             const ix = parseInt(segmentix, 10);
@@ -234,14 +233,28 @@ class TrackProfileGraph  {
             const pxy = y(alt);
 
             this._updateCursor(coords[0], pxy );
-            this._updatePinPoint(distanceFromStart,alt);
+            this._updatePinPoint(distanceFromStart,alt,this._data[ix], [ev.layerX,80]);
         }
 
         
     }
 
-    _updatePinPoint(distanceFromStart,alt){
-        
+    _updatePinPoint(distanceFromStart,altitude, data, coords){
+
+        const pinPointStatsView = this.parentContainer.find( '[data-id="pinPointStats"]' );
+        if( !pinPointStatsView.is(":visible") ){
+            pinPointStatsView.toggle();
+        }
+             
+        pinPointStatsView
+            .css('left',coords[0])
+            .css('bottom',coords[1]);
+        pinPointStatsView.find('[data-distance]').html(distanceFromStart);
+        pinPointStatsView.find('[data-time]').html('12:34');
+        pinPointStatsView.find('[data-gradient]').html(data.gradient);
+        pinPointStatsView.find('[data-altitude]').html(altitude);
+        pinPointStatsView.find('[data-cumulAlt]').html(data.cumulAlt);
+
     }
 
     _updateCursor(x,y){
@@ -281,7 +294,7 @@ class TrackProfileGraph  {
                     surface: toSurface(obj), 
                     cumulDist: 0, 
                     cumulAlt: 0,                     
-                    origDist: obj.feature.distance,
+                    _origDist: obj.feature.distance,
                     gradient: 0
                    }       
             }
@@ -291,15 +304,18 @@ class TrackProfileGraph  {
 
             lastDist = segLength + lastDist;
             lastPoint = currentPoint;
+            let diff = obj.alt - lastAlt;
+            diff = (diff>0) ? diff : 0;
+            
             lastAlt = obj.alt;
-            cumulAlt = obj.alt + lastAlt;
+            cumulAlt = diff + cumulAlt;
 
             return { alt: obj.alt, 
                      segLength: segLength, 
                      surface: toSurface(obj), 
                      cumulDist: lastDist/1000, // use km
-                     cumulAlt: lastAlt,
-                     origDist: obj.feature.distance,
+                     cumulAlt: cumulAlt,
+                     _origDist: obj.feature.distance,
                      gradient: gradient
                     }
 
@@ -307,7 +323,6 @@ class TrackProfileGraph  {
             
 
         this._data = track.getLatLngs().map( toObjOrNull );
-        console.log('this._data: ',this._data)
         this._initUI(this._data);
     }
 

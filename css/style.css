@@ -1313,7 +1313,8 @@ table.dataTable.display tbody tr:hover.selected {
     grid-template-columns: 1fr 1fr;
     padding: 4px;
     background-color: white;
-
+    border: 1px solid gray;
+    border-radius: 4px;
 }
 
 .stats-container .field {
@@ -1338,9 +1339,9 @@ table.dataTable.display tbody tr:hover.selected {
     line-height: 32px;
     text-align: center;
     background-color: white;
-    border-radius: 8px;
+    border-radius: 4px;
     margin-top: 4px;
-
+    border: 1px solid lightgray;
 }
 
 
@@ -1371,6 +1372,22 @@ table.dataTable.display tbody tr:hover.selected {
     right: 0;
 }
 
+#trackProfileGraph .pin-point-stats {
+    max-width: 200px;
+    width: 185px;
+    position: fixed;
+    _top: 45px;
+    _left: 10px;
+    z-index: 2;
+    cursor: pointer;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid lightgray;
+    padding: 2px;
+    margin-left: 20px;
+
+}
+
 
 #trackProfileToggle {
     position: fixed;
@@ -1380,7 +1397,6 @@ table.dataTable.display tbody tr:hover.selected {
     cursor: pointer;
     background-color: white;
 }
-
 
 /*[UT] hide some UIs on init*/
 .initially-hidden {
