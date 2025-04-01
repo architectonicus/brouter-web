@@ -218,58 +218,34 @@ class TrackProfileGraph  {
     }
     
     _handleMouseMove(ev){
-        // (event) => {console.log(event); return false;}
-        //console.log(ev); 
-
-
-        // var bisect = d3.bisector(function(d) { return d.x; }).left;
-
-        const coords = d3.pointer(ev );
-        console.log('coords ' ,  coords[1]);
-
         
-        //var bisect = d3.bisector(function(d) { return d.alt; }).left;
-        //var i = bisect(this._data, x0, 1);
-        //console.log('I? ' ,i);
+        const coords = d3.pointer(ev);
 
         const segmentix = ev.target.getAttribute('data-segment-ix');
         if( segmentix ) {
             const ix = parseInt(segmentix, 10);
-            //console.log('segmentix ' , segmentix);
             var distanceFromStart = this._axes['cumulativeDistance'].invert(coords[0]);
-            var a = this._axes['altitude'].invert(coords[1]);
             
-            console.log('A: ', a)
-
-            //console.log(x)
             const y = this._axes['altitude'];
-            //const distanceFromStart = x(evx);
-            const completeDist = this._data[this._data.length-1].cumulDist;
-
-            //console.log('dist ', this._data[ix+1].cumulDist , this._data[ix].cumulDist);
-            //console.log('alts ', this._data[ix+1].alt , this._data[ix].alt);
-
-            //TODO FIXME should use seg length, not total distance
-            //const alt = d3.interpolateNumber(this._data[ix].alt, this._data[ix+1].alt)(distanceFromStart/completeDist);
             const alt = (distanceFromStart-this._data[ix].cumulDist) * 
                         (this._data[ix+1].alt - this._data[ix].alt) / (this._data[ix+1].cumulDist - this._data[ix].cumulDist)
                         + this._data[ix].alt;
 
-            console.log('distanceFromStart ', distanceFromStart,this._data[ix].cumulDist)
-            //console.log('distance: ',distanceFromStart,completeDist, 'px x', evx)
-
-            const pxy = y(coords[1]-this._box.height) - this._box.height;
-            
-            console.log('x ', distanceFromStart, ' alt ', alt, ' inv ', y.invert(alt), ' px alt', pxy );
+            const pxy = y(alt);
 
             this._updateCursor(coords[0], pxy );
+            this._updatePinPoint(distanceFromStart,alt);
         }
 
         
     }
 
+    _updatePinPoint(distanceFromStart,alt){
+        
+    }
+
     _updateCursor(x,y){
-       // this.svgContainer.find('circle[data-cursor]').detach();
+        this.svgContainer.find('circle[data-cursor]').detach();
         d3.select(this._svgElementName).select('svg').append('circle')
             .attr('data-cursor', true)
             //.attr("transform", `translate(0,-10})`)
