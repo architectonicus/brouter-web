@@ -1,50 +1,42 @@
-class RouteStats  {
-	
+class RouteStats {
     constructor(parentElement) {
-
         this.parentElement = parentElement;
-        this.parentElement.find('.viz-toggle').on('click',
-            e => {
-                const container = this.parentElement.find('.stats-container')
-                
-                container.toggle();
-                if(container.is(":visible")){
-                    container.css('display','grid');
-                }
-            }
-        );
+        this.parentElement.find('.viz-toggle').on('click', (e) => {
+            const container = this.parentElement.find('.stats-container');
 
+            container.toggle();
+            if (container.is(':visible')) {
+                container.css('display', 'grid');
+            }
+        });
     }
 
-    update(polyline, segments){
-
+    update(polyline, segments) {
         var stats = this._calcStats(polyline, segments),
-        length1 = L.Util.formatNum(stats.trackLength / 1000, 1).toLocaleString(),
-        length3 = L.Util.formatNum(stats.trackLength / 1000, 3).toLocaleString(undefined, {
-            minimumFractionDigits: 3,
-        }),
-        formattedAscend = stats.filteredAscend.toLocaleString(),
-        formattedPlainAscend = stats.plainAscend.toLocaleString(),
-        formattedCost = stats.cost.toLocaleString(),
-        meanCostFactor = stats.trackLength
-            ? L.Util.formatNum(stats.cost / stats.trackLength, 2).toLocaleString()
-            : '0',
-        formattedTime =
-            Math.trunc(stats.totalTime / 3600) + ':' + ('0' + Math.trunc((stats.totalTime % 3600) / 60)).slice(-2),
-        formattedTimeHMS = formattedTime + ':' + ('0' + Math.trunc(stats.totalTime % 60)).slice(-2),
-        formattedEnergy = L.Util.formatNum(stats.totalEnergy / 3600000, 2).toLocaleString(),
-        meanEnergy = stats.trackLength
-            ? L.Util.formatNum(stats.totalEnergy / 36 / stats.trackLength, 2).toLocaleString()
-            : '0';
-
-        
+            length1 = L.Util.formatNum(stats.trackLength / 1000, 1).toLocaleString(),
+            length3 = L.Util.formatNum(stats.trackLength / 1000, 3).toLocaleString(undefined, {
+                minimumFractionDigits: 3,
+            }),
+            formattedAscend = stats.filteredAscend.toLocaleString(),
+            formattedPlainAscend = stats.plainAscend.toLocaleString(),
+            formattedCost = stats.cost.toLocaleString(),
+            meanCostFactor = stats.trackLength
+                ? L.Util.formatNum(stats.cost / stats.trackLength, 2).toLocaleString()
+                : '0',
+            formattedTime =
+                Math.trunc(stats.totalTime / 3600) + ':' + ('0' + Math.trunc((stats.totalTime % 3600) / 60)).slice(-2),
+            formattedTimeHMS = formattedTime + ':' + ('0' + Math.trunc(stats.totalTime % 60)).slice(-2),
+            formattedEnergy = L.Util.formatNum(stats.totalEnergy / 3600000, 2).toLocaleString(),
+            meanEnergy = stats.trackLength
+                ? L.Util.formatNum(stats.totalEnergy / 36 / stats.trackLength, 2).toLocaleString()
+                : '0';
 
         const routeData = {
-            distance:length1,
-            time:formattedTime+ ' h',
-            ascend:formattedAscend,
-            descend:formattedPlainAscend,
-            speed: '40.2km/h'
+            distance: length1,
+            time: formattedTime + ' h',
+            ascend: formattedAscend,
+            descend: formattedPlainAscend,
+            speed: '40.2km/h',
         };
 
         this.parentElement.find('[data-distance]').html(routeData.distance);
@@ -52,8 +44,7 @@ class RouteStats  {
         this.parentElement.find('[data-ascend]').html(routeData.ascend);
         this.parentElement.find('[data-descend]').html(routeData.descend);
         this.parentElement.find('[data-speed]').html(routeData.speed);
-    }   
-
+    }
 
     _calcStats(polyline, segments) {
         var stats = {
@@ -79,4 +70,3 @@ class RouteStats  {
         return stats;
     }
 }
-      
