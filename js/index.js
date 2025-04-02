@@ -285,6 +285,29 @@
             trackProfileGraph.toggle();
 
         });
+
+        var profileToMapMarkerOptions = {
+            radius: 6,
+            fillColor: "white",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        };
+        const profileToMapMarker = L.circleMarker([0,0],profileToMapMarkerOptions);
+
+        const onSelection = function(data){
+            if(!map.hasLayer(profileToMapMarker)){
+                profileToMapMarker.addTo(map);
+            }
+            if( !data ){
+                profileToMapMarker.remove();
+            } else {
+                profileToMapMarker.setLatLng([data.latLon[0],data.latLon[1]])
+            }
+        };
+
+        trackProfileGraph.onSelection(onSelection);
         
         const routeStats = new RouteStats($('#routeStats'));
         console.log(routeStats)

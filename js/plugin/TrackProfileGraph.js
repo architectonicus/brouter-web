@@ -11,6 +11,8 @@ class TrackProfileGraph  {
         this.fillColorAttrSelection = $(this.parentContainer).find('select[data-id="trackProfileGraphFillSelect"]');
         this.fillColorAttrSelection.val(this._fillColorAttribute);
         
+        this.onSelectionFunc = function(){/* no-op */};
+
         //TODO static getter
         this._svgElementName = 'div.trackProfileGraphSvg';
         this.svgContainer = $(this.parentContainer).find(this._svgElementName);    
@@ -255,6 +257,8 @@ class TrackProfileGraph  {
         pinPointStatsView.find('[data-altitude]').html(altitude);
         pinPointStatsView.find('[data-cumulAlt]').html(data.cumulAlt);
 
+        this.onSelectionFunc(data);
+
     }
 
     _updateCursor(x,y){
@@ -290,6 +294,7 @@ class TrackProfileGraph  {
                 lastPoint = new L.LatLng(obj.lat, obj.lng);
                 lastAlt = obj.alt;
                 return { alt: obj.alt, 
+                    latLon: [obj.lat, obj.lng], 
                     segLength: lastDist, 
                     surface: toSurface(obj), 
                     cumulDist: 0, 
@@ -310,7 +315,9 @@ class TrackProfileGraph  {
             lastAlt = obj.alt;
             cumulAlt = diff + cumulAlt;
 
-            return { alt: obj.alt, 
+            return { 
+                     latLon: [obj.lat, obj.lng],
+                     alt: obj.alt, 
                      segLength: segLength, 
                      surface: toSurface(obj), 
                      cumulDist: lastDist/1000, // use km
@@ -325,6 +332,11 @@ class TrackProfileGraph  {
         this._data = track.getLatLngs().map( toObjOrNull );
         this._initUI(this._data);
     }
+
+    onSelection(callbackFunction){
+        this.onSelectionFunc = callbackFunction;
+    }
+
 
     static _SURF_TO_COLOR = {
         ground: 'black',
