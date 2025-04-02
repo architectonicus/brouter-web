@@ -75,6 +75,7 @@ class TrackProfileGraph  {
             //.attr("width", this.parentContainer.width())
             //.attr("height", this._box.height)
             .attr("viewBox", [0, 0, this._box.width, this._box.height])
+            .attr("preserveAspectRatio", "xMinYMin slice")
             .attr("style", "max-width: 100%; height: auto;");
 
         // Axes
