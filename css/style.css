@@ -1317,13 +1317,13 @@ table.dataTable.display tbody tr:hover.selected {
     border-radius: 4px;
 }
 
-.stats-container .field {
+.field {
     display: inline-block;
     font-family: sans-serif;
     font-size: 16px;
 }
 
-.stats-container .fieldK {
+.fieldK {
     max-width: 24px;
     min-width: 24px;
     display: inline-block;
@@ -1346,8 +1346,8 @@ table.dataTable.display tbody tr:hover.selected {
 
 
 #trackProfileGraph {
-    position: relative;
-    _top: 56vh;
+    position: fixed;
+    top: 70vh;
     bottom: 0;
     left: 0;
     z-index: 1;
@@ -1355,10 +1355,15 @@ table.dataTable.display tbody tr:hover.selected {
     _margin-bottom: 32px;
 }
 
+@media (max-width: 575.98px) {
+    #trackProfileGraph {
+        top: 55vh;
+    }
+}
+
 #trackProfileGraph div.trackProfileGraphSvg {
-    width: 90vw;
-    _height: 15vh;
-    border-right: #0074d9 solid 12px;
+    width: 100vw;
+    _height: 45vh;
     z-index: 1;
     background-color: white;
 }
@@ -1373,19 +1378,24 @@ table.dataTable.display tbody tr:hover.selected {
 }
 
 #trackProfileGraph .pin-point-stats {
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     max-width: 200px;
     width: 185px;
     position: fixed;
-    _top: 45px;
+    bottom: 145px;
     _left: 10px;
     z-index: 2;
     cursor: pointer;
     background-color: white;
     border-radius: 4px;
     border: 1px solid lightgray;
-    padding: 2px;
+    padding: 4px;
     margin-left: 20px;
 
+    /* initially hide */
+    visibility: hidden;
 }
 
 

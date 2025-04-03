@@ -17,6 +17,12 @@ class TrackProfileGraph {
         this._svgElementName = 'div.trackProfileGraphSvg';
         this.svgContainer = $(this.parentContainer).find(this._svgElementName);
 
+        console.log('SVGs ', this.svgContainer.width(), this.svgContainer.height() )
+        console.log('DIMs ', $(this._svgElementName).width(), $(this._svgElementName).height() )
+        console.log('SVGs ', 
+            $(this._svgElementName).find('svg').width(), 
+            $(this._svgElementName).find('svg').height() )
+
         this._box = {
             width: 1100,
             height: 235,
@@ -88,8 +94,7 @@ class TrackProfileGraph {
         svg.append('g')
             .attr('transform', `translate(0,${this._box.height - this._box.marginBottom})`)
             .call(
-                d3
-                    .axisBottom(x)
+                d3.axisBottom(x)
                     .ticks(this._box.width / 100)
                     .tickSizeOuter(0)
             )
@@ -298,6 +303,11 @@ class TrackProfileGraph {
             .attr('r', 6)
             .attr('stroke', 'black')
             .attr('fill', 'white');
+
+            console.log('SVGs ', 
+                $(this._svgElementName).find('svg').width(), 
+                $(this._svgElementName).find('svg').height() )
+
     }
 
     toggle() {

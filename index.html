@@ -9,12 +9,12 @@
 
         <!-- inject:css -->
         <link rel="stylesheet" href="dist/brouter-web.css" />
-        <link rel="icon" href="biruta.png">
+        <link rel="icon" href="biruta.png" />
         <!-- endinject -->
     </head>
 
     <body class="flexcolumn">
-        <nav class="navbar navbar-expand-md navbar-biruta ">
+        <nav class="navbar navbar-expand-md navbar-biruta">
             <button
                 class="navbar-toggler"
                 type="button"
@@ -26,8 +26,8 @@
             >
                 <span class="fa fa-bars"></span>
             </button>
-            
-            <a class="navbar-brand order-md-last" href="biruta.svg"><img  src="biruta.svg"  /></a>
+
+            <a class="navbar-brand order-md-last" href="biruta.svg"><img src="biruta.svg" /></a>
             <!-- [UT] <a class="navbar-brand order-md-last" href="#" data-toggle="modal" data-target="#about"
                 >BRouter-Web <sup class="version">0.18.1</sup></a
             >
@@ -1498,32 +1498,35 @@
                 </div>
             </div>
         </div>
-        <div id="trackProfileGraph" class="initially-hidden" style="display: none;">
-            <select data-id="trackProfileGraphLineSelect" >
+        <div id="trackProfileGraph" class="initially-hidden" style="display: none">
+            <select data-id="trackProfileGraphLineSelect">
                 <option value="">Pick line color</option>
                 <option value="surface">surface</option>
                 <option value="gradient">gradient</option>
                 <option value="altitude">altitude</option>
                 <option value="cumulativeAltitude">cumulativeAltitude</option>
             </select>
-            
-            <div data-id="pinPointStats" class="pin-point-stats" >
-                <div class="field"><span class="fieldK">⟷</span><span data-distance class="fieldV">...</span></div>
+
+            <div data-id="pinPointStats" class="pin-point-stats initially-hidden">
+                <div class="field">
+                    <span class="fieldK">⟷&nbsp;</span><span data-distance class="fieldV">...</span>
+                </div>
                 <div class="field"><span class="fieldK">⏱</span><span data-time class="fieldV">...</span></div>
                 <div class="field"><span class="fieldK">↗</span><span data-gradient class="fieldV">...</span></div>
                 <div class="field"><span class="fieldK">↨</span><span data-altitude class="fieldV">...</span></div>
-                <div class="field"><span class="fieldK">↥</span><span data-cumulAlt class="fieldV">...</span></div>                
+                <div class="field"><span class="fieldK">↥</span><span data-cumulAlt class="fieldV">...</span></div>
+                <div class="field"><span class="fieldK">🚲</span><span data-surface class="fieldV">...</span></div>
             </div>
+            <!-- 🚲 🚵 🚴-->
 
-            <div class="trackProfileGraphSvg" ></div>
-            <select data-id="trackProfileGraphFillSelect" >
+            <div class="trackProfileGraphSvg"></div>
+            <select data-id="trackProfileGraphFillSelect">
                 <option value="">Pick fill color</option>
                 <option value="surface">surface</option>
                 <option value="gradient">gradient</option>
             </select>
         </div>
-        <div class="collapse" id="elevation-chart" style="display: none;">
-            
+        <div class="collapse" id="elevation-chart" style="display: none">
             <span id="no-elevation-data" data-i18n="footer.no-elevation-data" style="display: none"
                 >No elevation data available for this route.</span
             >
@@ -1531,35 +1534,38 @@
         <!-- [UT]-->
         <div id="routeStats">
             <div class="initially-hidden stats-container">
-                <div class="field"><span class="fieldK">⟷</span><span data-distance class="fieldV">...</span></div>
+                <div class="field">
+                    <span class="fieldK">⟷&nbsp;</span><span data-distance class="fieldV">...</span>
+                </div>
                 <div class="field"><span class="fieldK">⏱</span><span data-time class="fieldV">...</span></div>
                 <div class="field"><span class="fieldK">↗</span><span data-ascend class="fieldV">1:23h</span></div>
                 <div class="field"><span class="fieldK">↘</span><span data-descend class="fieldV">1:23h</span></div>
-                <div class="field"><span class="fieldK" style="transform: scale(-1, 1);display:inline-block">🚴‍♀️</span>
-                                                            <span data-speed class="fieldV">23km/h</span></div>
+                <div class="field">
+                    <span class="fieldK" style="transform: scale(-1, 1); display: inline-block">🚴‍♀️</span>
+                    <span data-speed class="fieldV">23km/h</span>
+                </div>
             </div>
-            <div class="viz-toggle" >🚴‍♀️</div>
+            <div class="viz-toggle">🚴‍♀️</div>
         </div>
 
         <button
-                class="btn btn-outline-secondary btn-sm"
-                type="button"
-                data-toggle="collapse"
-                data-target="#elevation-chart"
-                aria-controls="elevation-chart"
-                id="trackProfileToggle"
-                aria-expanded="false"
-                aria-label="Toggle elevation chart"
-                data-i18n="[title]keyboard.generic-shortcut"
-                data-i18n-options='{ "action": "$t(footer.elevation-chart)", "key": "E" }'
-                title="Toggle elevation chart"
-            >
-                <span class="fa fa-area-chart"></span>
-            </button>
-<!-- was here the profile graph -->
-<!-- [UT] footer seems obsolete -->
-        <footer class="flexrow" style="display: none;">
-            
+            class="btn btn-outline-secondary btn-sm"
+            type="button"
+            data-toggle="collapse"
+            data-target="#elevation-chart"
+            aria-controls="elevation-chart"
+            id="trackProfileToggle"
+            aria-expanded="false"
+            aria-label="Toggle elevation chart"
+            data-i18n="[title]keyboard.generic-shortcut"
+            data-i18n-options='{ "action": "$t(footer.elevation-chart)", "key": "E" }'
+            title="Toggle elevation chart"
+        >
+            <span class="fa fa-area-chart"></span>
+        </button>
+        <!-- was here the profile graph -->
+        <!-- [UT] footer seems obsolete -->
+        <footer class="flexrow" style="display: none">
             <div id="stats-info" class="flexgrow">
                 <div>
                     <span class="fa fa-info-circle"></span>
@@ -1653,8 +1659,6 @@
                     </li>
                 </ul>
             </div>
-
-            
         </footer>
 
         <script>
@@ -1677,7 +1681,7 @@
         <script src="dist/layersConf.js"></script>
         <script src="dist/turf.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-        
+
         <!-- "gulp inject" for debugging -->
         <!-- inject:js -->
         <script src="dist/brouter-web.js"></script>
