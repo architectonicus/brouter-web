@@ -14,8 +14,8 @@ class TrackProfileGraph {
         };
 
         //TODO static getter
-        this._svgElementName = 'div.trackProfileGraphSvg';
-        this.svgContainer = $(this.parentContainer).find(this._svgElementName);
+        this._svgElementName = 'div.trackProfileGraphSvg';//TODO delete
+        this.svgContainer = $(this.parentContainer).find('div.trackProfileGraphSvg');
 
         console.log('SVGs ', this.svgContainer.width(), this.svgContainer.height() )
         console.log('DIMs ', $(this._svgElementName).width(), $(this._svgElementName).height() )
@@ -24,8 +24,8 @@ class TrackProfileGraph {
             $(this._svgElementName).find('svg').height() )
 
         this._box = {
-            width: 1100,
-            height: 235,
+            width: this.svgContainer.width(),
+            height: this.svgContainer.height(),
             marginTop: 20,
             marginRight: 30,
             marginBottom: 30,
@@ -108,7 +108,6 @@ class TrackProfileGraph {
             //.call(g => g.select(".domain").remove())
             .call((g) => g.select('.tick:last-of-type text').append('tspan').text(' m'));
 
-        console.log(this._lineColorAttribute, this._fillColorAttribute);
         // the line and fill color functions
         const lineColor = TrackProfileGraph.COLOR_FUNCTIONS[this._lineColorAttribute];
         const fillColor = TrackProfileGraph.COLOR_FUNCTIONS[this._fillColorAttribute];
