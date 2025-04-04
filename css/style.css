@@ -1347,7 +1347,7 @@ table.dataTable.display tbody tr:hover.selected {
 
 #trackProfileGraph {
     position: fixed;
-    top: 70vh;
+    _top: 70vh;
     bottom: 0;
     left: 0;
     z-index: 1;
@@ -1355,17 +1355,19 @@ table.dataTable.display tbody tr:hover.selected {
     _margin-bottom: 32px;
 }
 
-@media (max-width: 575.98px) {
-    #trackProfileGraph {
-        top: 55vh;
-    }
-}
-
 #trackProfileGraph div.trackProfileGraphSvg {
     width: 100vw;
-    _height: 45vh;
+    height: 25vh;
     z-index: 1;
     background-color: white;
+}
+
+@media (max-width: 575.98px) {
+
+    /* below which, is mobile */
+    #trackProfileGraph {
+        height: 45vh;
+    }
 }
 
 #trackProfileGraph .trackColorSelect {
